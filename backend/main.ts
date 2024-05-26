@@ -1,8 +1,12 @@
-const express = require("express");
-const http = require("http");
-const WebSocket = require("ws");
+import http from "http";
+import express, { Application, Request, Response } from "express";
+import WebSocket from "ws";
 
-const app = express();
+const app: Application = express();
+const PORT = 3001;
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Expressサーバーを作成
 const server = http.createServer(app);
@@ -20,7 +24,7 @@ wss.on("connection", (ws) => {
     // 接続されているすべてのクライアントにメッセージを送信
     wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(`Server: ${message}`);
+        client.send(`Serverからのメッセージ: ${message}`);
       }
     });
   });
@@ -31,7 +35,12 @@ wss.on("connection", (ws) => {
   });
 });
 
-// サーバーを起動
-server.listen(3001, () => {
-  console.log("WebSocket server is listening on port 3001");
-});
+try {
+  server.listen(PORT, () => {
+    console.log(`dev server running at: http://localhost:${PORT}/`);
+  });
+} catch (e) {
+  if (e instanceof Error) {
+    console.error(e.message);
+  }
+}
