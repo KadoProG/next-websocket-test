@@ -23,6 +23,14 @@ yarn # install package
 yarn start # backend debuging http://localhost:3001
 ```
 
+### Docker を使用する場合
+
+```shell
+docker-compose up --build -d # front: http://localhost:3000 backend: http://localhost:3001
+```
+
+以降は Docker Desktop 上で制御ができる
+
 ## 作業ログ
 
 ### 変更内容
