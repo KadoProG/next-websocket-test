@@ -1,6 +1,6 @@
-import http from "http";
-import express, { Application, Request, Response } from "express";
-import WebSocket from "ws";
+import http from 'http';
+import express, { Application, Request, Response } from 'express';
+import WebSocket from 'ws';
 
 const app: Application = express();
 const PORT = 3001;
@@ -14,11 +14,11 @@ const server = http.createServer(app);
 // WebSocketサーバーを作成
 const wss = new WebSocket.Server({ server });
 
-wss.on("connection", (ws) => {
-  console.log("New client connected");
+wss.on('connection', (ws) => {
+  console.log('New client connected');
 
   // メッセージを受信したときの処理
-  ws.on("message", (message) => {
+  ws.on('message', (message) => {
     console.log(`Received: ${message}`);
     ws.send(`Server: ${message}`);
     // 接続されているすべてのクライアントにメッセージを送信
@@ -30,8 +30,8 @@ wss.on("connection", (ws) => {
   });
 
   // クライアントが切断したときの処理
-  ws.on("close", () => {
-    console.log("Client disconnected");
+  ws.on('close', () => {
+    console.log('Client disconnected');
   });
 });
 
