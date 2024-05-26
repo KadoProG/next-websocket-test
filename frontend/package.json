@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "backend": "node server/index.js",
+    "prettier": "prettier --write --ignore-path .gitignore './**/*.{js,jsx,ts,tsx,json,css}'",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
