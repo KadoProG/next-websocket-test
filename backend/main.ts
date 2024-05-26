@@ -24,7 +24,7 @@ wss.on("connection", (ws) => {
     // 接続されているすべてのクライアントにメッセージを送信
     wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(`Serverからのメッセージ: ${message}`);
+        client.send(`Server: ${message}`);
       }
     });
   });

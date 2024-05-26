@@ -23,6 +23,13 @@ yarn # install package
 yarn start # backend debuging http://localhost:3001
 ```
 
+## 作業ログ
+
+### 変更内容
+
+- express のホットリロードに対応（[参考記事](https://qiita.com/koheiiwamura/items/38a7818da7300eb6e02b)）
+  - 記事の`ts-node-env`のほうで実施
+
 ### 苦戦したポイント
 
 もともと Next.js の API Router で実現しようと思っていたが、Qiita の記事の中で`App Routerは無理`的なことが書いてあったため急遽 express で実施。
