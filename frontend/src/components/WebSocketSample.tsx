@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-const Home = () => {
+export const WebSocketSample = () => {
   const [message, setMessage] = React.useState('');
   const [response, setResponse] = React.useState('');
   const [ws, setWs] = React.useState<WebSocket | null>(null);
@@ -56,4 +56,3 @@ const Home = () => {
     </div>
   );
 };
-export default Home;

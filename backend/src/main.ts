@@ -1,9 +1,9 @@
 import http from 'http';
-import express, { Application, Request, Response } from 'express';
+import express, { Application } from 'express';
 import WebSocket from 'ws';
 
 const app: Application = express();
-const PORT = 3001;
+const appPort = 3001 as const;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -15,11 +15,11 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws) => {
-  console.log('New client connected');
+  console.log('New client connected'); // eslint-disable-line no-console
 
   // メッセージを受信したときの処理
   ws.on('message', (message) => {
-    console.log(`Received: ${message}`);
+    console.log(`Received: ${message}`); // eslint-disable-line no-console
     ws.send(`Server: ${message}`);
     // 接続されているすべてのクライアントにメッセージを送信
     wss.clients.forEach((client) => {
@@ -31,16 +31,16 @@ wss.on('connection', (ws) => {
 
   // クライアントが切断したときの処理
   ws.on('close', () => {
-    console.log('Client disconnected');
+    console.log('Client disconnected'); // eslint-disable-line no-console
   });
 });
 
 try {
-  server.listen(PORT, () => {
-    console.log(`dev server running at: http://localhost:${PORT}/`);
+  server.listen(appPort, () => {
+    console.log(`dev server running at: http://localhost:${appPort}/`); // eslint-disable-line no-console
   });
 } catch (e) {
   if (e instanceof Error) {
-    console.error(e.message);
+    console.error(e.message); // eslint-disable-line no-console
   }
 }
