@@ -15,10 +15,21 @@ app.use(
     allowedHeaders: ['Content-Type'], // 許可するHTTPヘッダー
   })
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const sessions: Record<string, Set<WebSocket>> = {};
+
+// クライアントのリストをすべてのクライアントにブロードキャストする関数
+const broadcastClientList = (sessionId: string) => {
+  const clientList = Array.from(sessions[sessionId]).map((ws, index) => `Client ${index + 1}`);
+  sessions[sessionId].forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({ type: 'clientList', clients: clientList }));
+    }
+  });
+};
 
 // Expressサーバーを作成
 const server = http.createServer(app);
@@ -34,9 +45,13 @@ wss.on('connection', (ws, req) => {
     sessions[sessionId].add(ws);
     console.log(`New client connected to session ${sessionId}`); // eslint-disable-line no-console
 
+    // クライアントのリストをブロードキャスト
+    broadcastClientList(sessionId);
+
     // メッセージを受信したときの処理
     ws.on('message', (message) => {
       console.log(`Received: ${message}`); // eslint-disable-line no-console
+      ws.send(`Server: ${message}`);
       // 接続されているすべてのクライアントにメッセージを送信
       sessions[sessionId].forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
@@ -51,6 +66,9 @@ wss.on('connection', (ws, req) => {
       sessions[sessionId].delete(ws);
       if (sessions[sessionId].size === 0) {
         delete sessions[sessionId];
+      } else {
+        // クライアントのリストをブロードキャスト
+        broadcastClientList(sessionId);
       }
     });
   } else {

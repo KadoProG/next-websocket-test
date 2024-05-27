@@ -10,8 +10,8 @@ export const WebSocketSample = () => {
   const [clients, setClients] = React.useState<string[]>([]);
   const [joinSessionId, setJoinSessionId] = React.useState('');
 
-  const connectWebSocket = (selectedSessionId: string) => {
-    const socket = new WebSocket(`ws://localhost:3001/?sessionId=${selectedSessionId}`);
+  const connectWebSocket = (selectSessionId: string) => {
+    const socket = new WebSocket(`ws://localhost:3001/?sessionId=${selectSessionId}`);
 
     socket.onopen = () => {
       console.log('Connected to WebSocket server'); // eslint-disable-line no-console
@@ -19,21 +19,21 @@ export const WebSocketSample = () => {
     };
 
     socket.onmessage = (event) => {
-      console.log('Message from WebSocket server', event.data); // eslint-disable-line no-console
-      setResponse(event.data);
+      const data = JSON.parse(event.data);
+      console.log('Message from WebSocket server', data); // eslint-disable-line no-console
+
+      if (data.type === 'clientList') {
+        setClients(data.clients);
+      } else {
+        setResponse(event.data);
+      }
     };
 
     socket.onclose = () => {
       console.log('Disconnected from WebSocket server'); // eslint-disable-line no-console
     };
 
-    setInterval(async () => {
-      const clientResponse = await fetch(
-        `http://localhost:3001/session/${selectedSessionId}/clients`
-      );
-      const data = await clientResponse.json();
-      setClients(data.clients);
-    }, 5000);
+    setWs(socket);
   };
 
   const createSession = async () => {
@@ -93,7 +93,7 @@ export const WebSocketSample = () => {
           <h2>Connected Clients</h2>
           <ul>
             {clients.map((client) => (
-              <li key={JSON.stringify(client)}>{client}</li>
+              <li key={client}>{client}</li>
             ))}
           </ul>
         </div>
