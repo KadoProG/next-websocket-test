@@ -2,20 +2,29 @@ import http from 'http';
 import express, { Application, Request, Response } from 'express';
 import WebSocket from 'ws';
 import { v4 as uuidv4 } from 'uuid';
+import cors from 'cors';
 
 const app: Application = express();
 const appPort = 3001 as const;
 
+// CORSミドルウェアの設定
+app.use(
+  cors({
+    origin: 'http://localhost:3000', // フロントエンドがホストされているオリジンを指定
+    methods: ['GET', 'POST'], // 許可するHTTPメソッド
+    allowedHeaders: ['Content-Type'], // 許可するHTTPヘッダー
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+const sessions: Record<string, Set<WebSocket>> = {};
 
 // Expressサーバーを作成
 const server = http.createServer(app);
 
 // WebSocketサーバーを作成
 const wss = new WebSocket.Server({ server });
-
-const sessions: Record<string, Set<WebSocket>> = {};
 
 wss.on('connection', (ws, req) => {
   const urlParams = new URLSearchParams(req.url?.substring(1));
@@ -25,13 +34,11 @@ wss.on('connection', (ws, req) => {
     sessions[sessionId].add(ws);
     console.log(`New client connected to session ${sessionId}`); // eslint-disable-line no-console
 
-    console.log('New client connected'); // eslint-disable-line no-console
-
     // メッセージを受信したときの処理
     ws.on('message', (message) => {
       console.log(`Received: ${message}`); // eslint-disable-line no-console
       // 接続されているすべてのクライアントにメッセージを送信
-      wss.clients.forEach((client) => {
+      sessions[sessionId].forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
           client.send(`Server: ${message}`);
         }
@@ -40,8 +47,11 @@ wss.on('connection', (ws, req) => {
 
     // クライアントが切断したときの処理
     ws.on('close', () => {
+      console.log(`Client disconnected from session ${sessionId}`); // eslint-disable-line no-console
       sessions[sessionId].delete(ws);
-      console.log('Client disconnected'); // eslint-disable-line no-console
+      if (sessions[sessionId].size === 0) {
+        delete sessions[sessionId];
+      }
     });
   } else {
     ws.close();
