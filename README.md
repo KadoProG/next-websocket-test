@@ -10,7 +10,7 @@ ChatGPT に試して、WebSocket の動作を作成してもらった。
 ### フロントエンド
 
 ```shell
-cd frontend # Change Directory from frontend
+cd frontend # Change Directory to frontend
 yarn # install package
 yarn dev # frontend debuging http://localhost:3000
 ```
@@ -18,7 +18,7 @@ yarn dev # frontend debuging http://localhost:3000
 ### バックエンド
 
 ```shell
-cd backend # Change Directory from backend
+cd backend # Change Directory to backend
 yarn # install package
 yarn start # backend debuging http://localhost:3001
 ```
@@ -26,7 +26,9 @@ yarn start # backend debuging http://localhost:3001
 ### Docker を使用する場合
 
 ```shell
-docker-compose up --build -d # front: http://localhost:3000 backend: http://localhost:3001
+docker-compose up --build -d
+# front: http://localhost:3000
+# backend: http://localhost:3001
 ```
 
 以降は Docker Desktop 上で制御ができる
