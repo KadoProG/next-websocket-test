@@ -51,7 +51,6 @@ wss.on('connection', (ws, req) => {
     // メッセージを受信したときの処理
     ws.on('message', (message) => {
       console.log(`Received: ${message}`); // eslint-disable-line no-console
-      ws.send(`Server: ${message}`);
       // 接続されているすべてのクライアントにメッセージを送信
       sessions[sessionId].forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
