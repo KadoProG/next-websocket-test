@@ -31,6 +31,8 @@ export const WebSocketSample = () => {
 
     socket.onclose = () => {
       console.log('Disconnected from WebSocket server'); // eslint-disable-line no-console
+      setClients([]);
+      setResponse('');
     };
 
     setWs(socket);
@@ -55,6 +57,14 @@ export const WebSocketSample = () => {
     if (ws && message) {
       ws.send(message);
       setMessage('');
+    }
+  };
+
+  const removeClient = async (index: number) => {
+    if (sessionId) {
+      await fetch(`http://localhost:3001/session/${sessionId}/clients/${index}`, {
+        method: 'DELETE',
+      });
     }
   };
 
@@ -92,8 +102,13 @@ export const WebSocketSample = () => {
           <p>Response from server: {response}</p>
           <h2>Connected Clients</h2>
           <ul>
-            {clients.map((client) => (
-              <li key={client}>{client}</li>
+            {clients.map((client, index) => (
+              <li key={client}>
+                {client}
+                <button type="button" onClick={() => removeClient(index)}>
+                  Remove
+                </button>
+              </li>
             ))}
           </ul>
         </div>

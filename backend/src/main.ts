@@ -11,7 +11,7 @@ const appPort = 3001 as const;
 app.use(
   cors({
     origin: 'http://localhost:3000', // フロントエンドがホストされているオリジンを指定
-    methods: ['GET', 'POST'], // 許可するHTTPメソッド
+    methods: ['GET', 'POST', 'DELETE'], // 許可するHTTPメソッド
     allowedHeaders: ['Content-Type'], // 許可するHTTPヘッダー
   })
 );
@@ -29,6 +29,18 @@ const broadcastClientList = (sessionId: string) => {
       client.send(JSON.stringify({ type: 'clientList', clients: clientList }));
     }
   });
+};
+
+// クライアントを削除する関数
+const removeClient = (sessionId: string, clientIndex: number) => {
+  const clients = Array.from(sessions[sessionId]);
+  const clientToRemove = clients[clientIndex];
+
+  if (clientToRemove && clientToRemove.readyState === WebSocket.OPEN) {
+    clientToRemove.close();
+    sessions[sessionId].delete(clientToRemove);
+    broadcastClientList(sessionId);
+  }
 };
 
 // Expressサーバーを作成
@@ -54,7 +66,8 @@ wss.on('connection', (ws, req) => {
       // 接続されているすべてのクライアントにメッセージを送信
       sessions[sessionId].forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-          client.send(`Server: ${message}`);
+          const sendData = JSON.stringify({ type: 'messageList', messages: String(message) });
+          client.send(sendData);
         }
       });
     });
@@ -89,6 +102,17 @@ app.get('/session/:sessionId/clients', (req: Request, res: Response) => {
     res.json({
       clients: Array.from(sessions[sessionId]).map((ws, index) => `Client ${index + 1}`),
     });
+  } else {
+    res.status(404).json({ error: 'Session not found' });
+  }
+});
+
+// クライアントを削除するエンドポイント
+app.delete('/session/:sessionId/clients/:clientIndex', (req: Request, res: Response) => {
+  const { sessionId, clientIndex } = req.params;
+  if (sessions[sessionId]) {
+    removeClient(sessionId, parseInt(clientIndex, 10));
+    res.sendStatus(200);
   } else {
     res.status(404).json({ error: 'Session not found' });
   }
