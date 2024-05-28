@@ -1,6 +1,7 @@
 import React from 'react';
 import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { CopyToClipboardContextProvider } from '@/contexts/CopyContextProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -11,7 +12,9 @@ export const metadata: Metadata = {
 
 const RootLayout = (props: { children: React.ReactNode }) => (
   <html lang="ja">
-    <body className={inter.className}>{props.children}</body>
+    <body className={inter.className}>
+      <CopyToClipboardContextProvider>{props.children}</CopyToClipboardContextProvider>
+    </body>
   </html>
 );
 
