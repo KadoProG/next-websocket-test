@@ -1,9 +1,8 @@
 import React from 'react';
 import { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import { CopyToClipboardContextProvider } from '@/contexts/CopyContextProvider';
-
-const inter = Inter({ subsets: ['latin'] });
+import '@/app/globals.scss';
+import styles from '@/app/layout.module.scss';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -12,7 +11,7 @@ export const metadata: Metadata = {
 
 const RootLayout = (props: { children: React.ReactNode }) => (
   <html lang="ja">
-    <body className={inter.className}>
+    <body className={styles.Body}>
       <CopyToClipboardContextProvider>{props.children}</CopyToClipboardContextProvider>
     </body>
   </html>
