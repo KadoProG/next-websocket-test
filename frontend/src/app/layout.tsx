@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import { CopyToClipboardContextProvider } from '@/contexts/CopyContextProvider';
 import '@/app/globals.scss';
 import styles from '@/app/layout.module.scss';
+import { UserInfoContextProvider } from '@/contexts/UserInfoContextProvider';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -12,7 +13,9 @@ export const metadata: Metadata = {
 const RootLayout = (props: { children: React.ReactNode }) => (
   <html lang="ja">
     <body className={styles.Body}>
-      <CopyToClipboardContextProvider>{props.children}</CopyToClipboardContextProvider>
+      <UserInfoContextProvider>
+        <CopyToClipboardContextProvider>{props.children}</CopyToClipboardContextProvider>
+      </UserInfoContextProvider>
     </body>
   </html>
 );

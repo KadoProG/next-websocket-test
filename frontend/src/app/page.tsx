@@ -1,8 +1,7 @@
 'use client';
 
-import { WebSocketSample } from '@/components/WebSocketSample';
 import React from 'react';
 
-const Home = () => <WebSocketSample />;
+const Home = () => <p>ここがﾎｰﾑ（）</p>;
 
 export default Home;
