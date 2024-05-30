@@ -10,7 +10,7 @@ export const Room = () => {
   const { copyToClipboard } = useCopyToClipboard();
   React.useEffect(() => {
     if (!sessionId) {
-      redirect('/c/');
+      redirect('/c');
     }
   }, [sessionId]);
   const [message, setMessage] = React.useState('');
