@@ -19,14 +19,20 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const sessions: Record<string, Set<WebSocket>> = {};
+// セッションとクライアント情報を保持するための構造
+interface ClientInfo {
+  ws: WebSocket;
+  nickname: string;
+}
+
+const sessions: Record<string, Set<ClientInfo>> = {};
 
 // クライアントのリストをすべてのクライアントにブロードキャストする関数
 const broadcastClientList = (sessionId: string) => {
-  const clientList = Array.from(sessions[sessionId]).map((ws, index) => `Client ${index + 1}`);
-  sessions[sessionId].forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify({ type: 'clientList', clients: clientList }));
+  const clientList = Array.from(sessions[sessionId]).map((clientInfo) => clientInfo.nickname);
+  sessions[sessionId].forEach((clientInfo) => {
+    if (clientInfo.ws.readyState === WebSocket.OPEN) {
+      clientInfo.ws.send(JSON.stringify({ type: 'clientList', clients: clientList }));
     }
   });
 };
@@ -36,8 +42,8 @@ const removeClient = (sessionId: string, clientIndex: number) => {
   const clients = Array.from(sessions[sessionId]);
   const clientToRemove = clients[clientIndex];
 
-  if (clientToRemove && clientToRemove.readyState === WebSocket.OPEN) {
-    clientToRemove.close();
+  if (clientToRemove && clientToRemove.ws.readyState === WebSocket.OPEN) {
+    clientToRemove.ws.close();
     sessions[sessionId].delete(clientToRemove);
     broadcastClientList(sessionId);
   }
@@ -52,9 +58,13 @@ const wss = new WebSocket.Server({ server });
 wss.on('connection', (ws, req) => {
   const urlParams = new URLSearchParams(req.url?.substring(1));
   const sessionId = urlParams.get('sessionId');
+  const nickname = urlParams.get('nickName');
 
-  if (sessionId && sessions[sessionId]) {
-    sessions[sessionId].add(ws);
+  if (sessionId && sessions[sessionId] && nickname) {
+    // クライアント情報をセッションに追加
+    const clientInfo: ClientInfo = { ws, nickname };
+    sessions[sessionId].add(clientInfo);
+
     console.log(`New client connected to session ${sessionId}`); // eslint-disable-line no-console
 
     // クライアントのリストをブロードキャスト
@@ -65,9 +75,9 @@ wss.on('connection', (ws, req) => {
       console.log(`Received: ${message}`); // eslint-disable-line no-console
       // 接続されているすべてのクライアントにメッセージを送信
       sessions[sessionId].forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
+        if (client.ws.readyState === WebSocket.OPEN) {
           const sendData = JSON.stringify({ type: 'messageList', messages: String(message) });
-          client.send(sendData);
+          client.ws.send(sendData);
         }
       });
     });
@@ -75,7 +85,7 @@ wss.on('connection', (ws, req) => {
     // クライアントが切断したときの処理
     ws.on('close', () => {
       console.log(`Client disconnected from session ${sessionId}`); // eslint-disable-line no-console
-      sessions[sessionId].delete(ws);
+      sessions[sessionId].delete(clientInfo);
       if (sessions[sessionId].size === 0) {
         delete sessions[sessionId];
       } else {
@@ -100,7 +110,7 @@ app.get('/session/:sessionId/clients', (req: Request, res: Response) => {
   const sessionId = req.params.sessionId;
   if (sessions[sessionId]) {
     res.json({
-      clients: Array.from(sessions[sessionId]).map((ws, index) => `Client ${index + 1}`),
+      clients: Array.from(sessions[sessionId]).map((clientInfo) => clientInfo.nickname),
     });
   } else {
     res.status(404).json({ error: 'Session not found' });
@@ -121,6 +131,9 @@ app.delete('/session/:sessionId/clients/:clientIndex', (req: Request, res: Respo
 try {
   server.listen(appPort, () => {
     console.log(`dev server running at: http://localhost:${appPort}/`); // eslint-disable-line no-console
+    setInterval(() => {
+      console.log(sessions); // eslint-disable-line no-console
+    }, 1000);
   });
 } catch (e) {
   if (e instanceof Error) {
