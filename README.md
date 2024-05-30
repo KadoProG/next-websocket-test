@@ -6,6 +6,14 @@ ChatGPT に試して、WebSocket の動作を作成してもらった。
 - テキストの内容が他の人にもリアルタイムで適用されることを確認
 - 2024/05/30 Room を作成し、リンクを共有することで同じデータの connection にアクセスできるように実装
 
+### 画像
+
+|||
+|-|-|
+|ルーム作成画面|<img width="598" alt="スクリーンショット 2024-05-31 8 21 30" src="https://github.com/KadoProG/next-websocket-test/assets/65702927/51160cfc-d5de-4912-a6ef-090ac4f665c0">|
+|ルーム作成後の画面と招待画面|<img width="1199" alt="スクリーンショット 2024-05-31 8 21 10" src="https://github.com/KadoProG/next-websocket-test/assets/65702927/323cd965-5cb1-47ed-a62b-35905ba0ed46">|
+|招待後の画面|<img width="1200" alt="スクリーンショット 2024-05-31 8 20 32" src="https://github.com/KadoProG/next-websocket-test/assets/65702927/8849c856-d7ee-4548-884b-8b4f80bd3686">|
+
 ## 起動方法
 
 ### フロントエンド
