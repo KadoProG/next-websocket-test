@@ -5,12 +5,13 @@ import { v4 as uuidv4 } from 'uuid';
 import cors from 'cors';
 
 const app: Application = express();
-const appPort = 3001 as const;
+const appPort = process.env.PORT || (3001 as const);
+const frontendUrl = process.env.FRONTEND_URL;
 
 // CORSミドルウェアの設定
 app.use(
   cors({
-    origin: 'http://localhost:3000', // フロントエンドがホストされているオリジンを指定
+    origin: frontendUrl, // フロントエンドがホストされているオリジンを指定
     methods: ['GET', 'POST', 'DELETE'], // 許可するHTTPメソッド
     allowedHeaders: ['Content-Type'], // 許可するHTTPヘッダー
   })
@@ -102,7 +103,7 @@ wss.on('connection', (ws, req) => {
 app.post('/create-session', (req: Request, res: Response) => {
   const sessionId = uuidv4();
   sessions[sessionId] = new Set();
-  res.json({ sessionId, url: `http://localhost:${appPort}/?sessionId=${sessionId}` });
+  res.json({ sessionId });
 });
 
 // 指定されたセッションの参加者リストを取得するエンドポイント

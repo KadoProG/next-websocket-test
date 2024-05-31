@@ -15,6 +15,9 @@ services:
         volumes:
             - "./backend:/var/www/html"
         working_dir: "/var/www/html"
+        environment:
+            PORT: ${BACKEND_PORT}
+            FRONTEND_URL: ${NEXT_PUBLIC_BASE_URL}
         ports:
             - "3001:3001"
         command: bash -c "npm install && npm run dev"
