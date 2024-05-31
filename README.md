@@ -19,8 +19,8 @@ ChatGPT に試して、WebSocket の動作を作成してもらった。
 ### フロントエンド
 
 ```shell
-cp .env.example frontend/.env.local # copy env file
 cd frontend # Change Directory to frontend
+cp .env.example .env
 yarn # install package
 yarn dev # frontend debuging http://localhost:3000
 ```
@@ -29,8 +29,9 @@ yarn dev # frontend debuging http://localhost:3000
 
 ```shell
 cd backend # Change Directory to backend
+cp .env.example .env
 yarn # install package
-yarn start # backend debuging http://localhost:3001
+yarn dev # backend debuging http://localhost:3001
 ```
 
 ### Docker を使用する場合
