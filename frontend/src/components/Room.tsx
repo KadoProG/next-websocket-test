@@ -2,6 +2,7 @@
 
 import { useCopyToClipboard } from '@/contexts/CopyContextProvider';
 import { useUserInfo } from '@/contexts/UserInfoContextProvider';
+import axios from '@/libs/axios';
 import { redirect } from 'next/navigation';
 import React from 'react';
 
@@ -20,7 +21,7 @@ export const Room = () => {
 
   const connectWebSocket = (selectSessionId: string, selectNickname: string) => {
     const socket = new WebSocket(
-      `ws://localhost:3001/?sessionId=${selectSessionId}&nickName=${selectNickname}`
+      `${process.env.NEXT_PUBLIC_BACKEND_WS_URL}/?sessionId=${selectSessionId}&nickName=${selectNickname}`
     );
 
     socket.onopen = () => {
@@ -63,9 +64,7 @@ export const Room = () => {
 
   const removeClient = async (index: number) => {
     if (sessionId) {
-      await fetch(`http://localhost:3001/session/${sessionId}/clients/${index}`, {
-        method: 'DELETE',
-      });
+      await axios.delete(`/session/${sessionId}/clients/${index}`);
     }
   };
 

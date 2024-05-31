@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import cors from 'cors';
 
 const app: Application = express();
-const appPort = process.env.PORT || (3001 as const);
+const appPort = process.env.PORT || 3001;
 const frontendUrl = process.env.FRONTEND_URL;
 
 // CORSミドルウェアの設定
