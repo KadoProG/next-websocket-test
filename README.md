@@ -19,6 +19,7 @@ ChatGPT に試して、WebSocket の動作を作成してもらった。
 ### フロントエンド
 
 ```shell
+cp .env.example frontend/.env.local # copy env file
 cd frontend # Change Directory to frontend
 yarn # install package
 yarn dev # frontend debuging http://localhost:3000
@@ -41,6 +42,8 @@ docker-compose up --build -d
 ```
 
 以降は Docker Desktop 上で制御ができる
+
+また、React の仕様上、hook関連が２回動作するため、development では Client が２個描写されるので注意。
 
 ## 作業ログ
 
