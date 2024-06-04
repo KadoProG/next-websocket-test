@@ -6,6 +6,11 @@ import axios from '@/libs/axios';
 import { redirect } from 'next/navigation';
 import React from 'react';
 
+interface ClientInfo {
+  ws: WebSocket;
+  nickname: string;
+}
+
 export const Room = () => {
   const { sessionId, nickname } = useUserInfo();
   const { copyToClipboard } = useCopyToClipboard();
@@ -15,7 +20,9 @@ export const Room = () => {
     }
   }, [sessionId]);
   const [message, setMessage] = React.useState('');
-  const [response, setResponse] = React.useState<string[]>([]);
+  const [response, setResponse] = React.useState<
+    { ws: ClientInfo; message: string; isMine?: boolean }[]
+  >([]);
   const [ws, setWs] = React.useState<WebSocket | null>(null);
   const [clients, setClients] = React.useState<string[]>([]);
 
@@ -93,9 +100,11 @@ export const Room = () => {
 
           <h2>メッセージリスト</h2>
           <ul>
-            {response.map((messageData, index) => (
+            {response.map((messageObject, index) => (
               // eslint-disable-next-line react/no-array-index-key
-              <li key={index}>{messageData}</li>
+              <li key={index}>
+                {messageObject.ws.nickname} : {messageObject.message}
+              </li>
             ))}
           </ul>
           <h2>Connected Clients</h2>
