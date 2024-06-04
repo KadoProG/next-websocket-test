@@ -29,26 +29,43 @@ interface ClientInfo {
   nickname: string;
 }
 
-const sessions: Record<string, Set<ClientInfo>> = {};
+interface Session {
+  clients: Set<ClientInfo>;
+  messages: string[];
+}
+
+const sessions: Record<string, Session> = {};
 
 // クライアントのリストをすべてのクライアントにブロードキャストする関数
 const broadcastClientList = (sessionId: string) => {
-  const clientList = Array.from(sessions[sessionId]).map((clientInfo) => clientInfo.nickname);
-  sessions[sessionId].forEach((clientInfo) => {
+  const clientList = Array.from(sessions[sessionId].clients).map(
+    (clientInfo) => clientInfo.nickname
+  );
+  sessions[sessionId].clients.forEach((clientInfo) => {
     if (clientInfo.ws.readyState === WebSocket.OPEN) {
       clientInfo.ws.send(JSON.stringify({ type: 'clientList', clients: clientList }));
     }
   });
 };
 
+// メッセージ履歴をすべてのクライアントにブロードキャストする関数
+const broadcastMessageHistory = (sessionId: string) => {
+  const messageHistory = sessions[sessionId].messages;
+  sessions[sessionId].clients.forEach((clientInfo) => {
+    if (clientInfo.ws.readyState === WebSocket.OPEN) {
+      clientInfo.ws.send(JSON.stringify({ type: 'messageList', messages: messageHistory }));
+    }
+  });
+};
+
 // クライアントを削除する関数
 const removeClient = (sessionId: string, clientIndex: number) => {
-  const clients = Array.from(sessions[sessionId]);
+  const clients = Array.from(sessions[sessionId].clients);
   const clientToRemove = clients[clientIndex];
 
   if (clientToRemove && clientToRemove.ws.readyState === WebSocket.OPEN) {
     clientToRemove.ws.close();
-    sessions[sessionId].delete(clientToRemove);
+    sessions[sessionId].clients.delete(clientToRemove);
     broadcastClientList(sessionId);
   }
 };
@@ -67,30 +84,30 @@ wss.on('connection', (ws, req) => {
   if (sessionId && sessions[sessionId] && nickname) {
     // クライアント情報をセッションに追加
     const clientInfo: ClientInfo = { ws, nickname };
-    sessions[sessionId].add(clientInfo);
+    sessions[sessionId].clients.add(clientInfo);
 
     console.log(`New client connected to session ${sessionId}`); // eslint-disable-line no-console
 
     // クライアントのリストをブロードキャスト
     broadcastClientList(sessionId);
 
+    // メッセージ履歴を新しいクライアントに送信
+    ws.send(JSON.stringify({ type: 'messageList', messages: sessions[sessionId].messages }));
+
     // メッセージを受信したときの処理
     ws.on('message', (message) => {
       console.log(`Received: ${message}`); // eslint-disable-line no-console
-      // 接続されているすべてのクライアントにメッセージを送信
-      sessions[sessionId].forEach((client) => {
-        if (client.ws.readyState === WebSocket.OPEN) {
-          const sendData = JSON.stringify({ type: 'messageList', messages: String(message) });
-          client.ws.send(sendData);
-        }
-      });
+      // メッセージ履歴に追加
+      sessions[sessionId].messages.push(String(message));
+      // メッセージ履歴をブロードキャスト
+      broadcastMessageHistory(sessionId);
     });
 
     // クライアントが切断したときの処理
     ws.on('close', () => {
       console.log(`Client disconnected from session ${sessionId}`); // eslint-disable-line no-console
-      sessions[sessionId].delete(clientInfo);
-      if (sessions[sessionId].size === 0) {
+      sessions[sessionId].clients.delete(clientInfo);
+      if (sessions[sessionId].clients.size === 0) {
         delete sessions[sessionId];
       } else {
         // クライアントのリストをブロードキャスト
@@ -105,7 +122,7 @@ wss.on('connection', (ws, req) => {
 // 新しいセッションを作成するエンドポイント
 app.post('/create-session', (req: Request, res: Response) => {
   const sessionId = uuidv4();
-  sessions[sessionId] = new Set();
+  sessions[sessionId] = { clients: new Set(), messages: [] };
   res.json({ sessionId });
 });
 
@@ -114,7 +131,7 @@ app.get('/session/:sessionId/clients', (req: Request, res: Response) => {
   const sessionId = req.params.sessionId;
   if (sessions[sessionId]) {
     res.json({
-      clients: Array.from(sessions[sessionId]).map((clientInfo) => clientInfo.nickname),
+      clients: Array.from(sessions[sessionId].clients).map((clientInfo) => clientInfo.nickname),
     });
   } else {
     res.status(404).json({ error: 'Session not found' });
@@ -137,7 +154,7 @@ try {
     console.log(`dev server running at: http://localhost:${appPort}/`); // eslint-disable-line no-console
     setInterval(() => {
       console.log(sessions); // eslint-disable-line no-console
-    }, 1000);
+    }, 4000);
   });
 } catch (e) {
   if (e instanceof Error) {

@@ -15,7 +15,7 @@ export const Room = () => {
     }
   }, [sessionId]);
   const [message, setMessage] = React.useState('');
-  const [response, setResponse] = React.useState('');
+  const [response, setResponse] = React.useState<string[]>([]);
   const [ws, setWs] = React.useState<WebSocket | null>(null);
   const [clients, setClients] = React.useState<string[]>([]);
 
@@ -36,14 +36,13 @@ export const Room = () => {
       if (data.type === 'clientList') {
         setClients(data.clients);
       } else {
-        setResponse(event.data);
+        setResponse(data.messages);
       }
     };
 
     socket.onclose = () => {
       console.log('Disconnected from WebSocket server'); // eslint-disable-line no-console
       setClients([]);
-      setResponse('');
     };
 
     setWs(socket);
@@ -92,7 +91,13 @@ export const Room = () => {
             Send
           </button>
 
-          <p>Response from server: {response}</p>
+          <h2>メッセージリスト</h2>
+          <ul>
+            {response.map((messageData, index) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <li key={index}>{messageData}</li>
+            ))}
+          </ul>
           <h2>Connected Clients</h2>
           <ul>
             {clients.map((client, index) => (
