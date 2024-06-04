@@ -37,6 +37,7 @@ yarn dev # backend debuging http://localhost:3001
 ### Docker を使用する場合
 
 ```shell
+cp .env.example .env
 docker-compose up --build -d
 # front: http://localhost:3000
 # backend: http://localhost:3001
