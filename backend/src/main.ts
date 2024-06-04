@@ -3,6 +3,9 @@ import express, { Application, Request, Response } from 'express';
 import WebSocket from 'ws';
 import { v4 as uuidv4 } from 'uuid';
 import cors from 'cors';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app: Application = express();
 const appPort = process.env.PORT || 3001;
