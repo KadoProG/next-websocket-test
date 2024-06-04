@@ -31,7 +31,7 @@ interface ClientInfo {
 
 interface Session {
   clients: Set<ClientInfo>;
-  messages: string[];
+  messages: { ws: ClientInfo; message: string; isMine?: boolean }[];
 }
 
 const sessions: Record<string, Session> = {};
@@ -53,7 +53,15 @@ const broadcastMessageHistory = (sessionId: string) => {
   const messageHistory = sessions[sessionId].messages;
   sessions[sessionId].clients.forEach((clientInfo) => {
     if (clientInfo.ws.readyState === WebSocket.OPEN) {
-      clientInfo.ws.send(JSON.stringify({ type: 'messageList', messages: messageHistory }));
+      clientInfo.ws.send(
+        JSON.stringify({
+          type: 'messageList',
+          messages: messageHistory.map((message) => ({
+            ...message,
+            isMine: message.ws === clientInfo,
+          })),
+        })
+      );
     }
   });
 };
@@ -98,7 +106,7 @@ wss.on('connection', (ws, req) => {
     ws.on('message', (message) => {
       console.log(`Received: ${message}`); // eslint-disable-line no-console
       // メッセージ履歴に追加
-      sessions[sessionId].messages.push(String(message));
+      sessions[sessionId].messages.push({ ws: clientInfo, message: String(message) });
       // メッセージ履歴をブロードキャスト
       broadcastMessageHistory(sessionId);
     });
