@@ -12,7 +12,8 @@ ChatGPT に試して、WebSocket の動作を作成してもらった。
 |-|-|
 |ルーム作成画面|<img width="598" alt="スクリーンショット 2024-05-31 8 21 30" src="https://github.com/KadoProG/next-websocket-test/assets/65702927/51160cfc-d5de-4912-a6ef-090ac4f665c0">|
 |ルーム作成後の画面と招待画面|<img width="1199" alt="スクリーンショット 2024-05-31 8 21 10" src="https://github.com/KadoProG/next-websocket-test/assets/65702927/323cd965-5cb1-47ed-a62b-35905ba0ed46">|
-|招待後の画面|<img width="1200" alt="スクリーンショット 2024-05-31 8 20 32" src="https://github.com/KadoProG/next-websocket-test/assets/65702927/8849c856-d7ee-4548-884b-8b4f80bd3686">|
+|招待後の画面|<img width="1279" alt="スクリーンショット 2024-06-05 10 40 41" src="https://github.com/KadoProG/next-websocket-test/assets/65702927/4b302e16-bc6d-4d71-b488-4e9342a4c815">|
+
 
 ## 起動方法
 
