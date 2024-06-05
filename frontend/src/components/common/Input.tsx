@@ -19,8 +19,13 @@ export const Input = <T extends FieldValues>(props: InputProps<T>) => {
 
   return (
     <div className={styles.container}>
-      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-      <input {...field} placeholder={props.placeholder} className={styles.Input} />
+      <input
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        {...field}
+        placeholder={props.placeholder}
+        disabled={props.disabled}
+        className={styles.Input}
+      />
       {fieldState.error && <p className={styles.errorText}>{fieldState.error.message}</p>}
     </div>
   );

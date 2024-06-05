@@ -1,10 +1,14 @@
 'use client';
 
+import { Input } from '@/components/common/Input';
+import { TalkingCard } from '@/components/common/TalkingCard';
 import { useCopyToClipboard } from '@/contexts/CopyContextProvider';
 import { useUserInfo } from '@/contexts/UserInfoContextProvider';
 import axios from '@/libs/axios';
 import { redirect } from 'next/navigation';
 import React from 'react';
+import { useForm } from 'react-hook-form';
+import styles from '@/components/Room.module.scss';
 
 interface ClientInfo {
   ws: WebSocket;
@@ -19,12 +23,18 @@ export const Room = () => {
       redirect('/c');
     }
   }, [sessionId]);
-  const [message, setMessage] = React.useState('');
+
+  const { control, handleSubmit, reset } = useForm<{ message: string }>({
+    defaultValues: {
+      message: '',
+    },
+  });
   const [response, setResponse] = React.useState<
     { ws: ClientInfo; message: string; isMine?: boolean }[]
   >([]);
   const [ws, setWs] = React.useState<WebSocket | null>(null);
   const [clients, setClients] = React.useState<string[]>([]);
+  const [isDisconnected, setIsDisconnected] = React.useState<boolean>(false);
 
   const connectWebSocket = (selectSessionId: string, selectNickname: string) => {
     const socket = new WebSocket(
@@ -50,6 +60,7 @@ export const Room = () => {
     socket.onclose = () => {
       console.log('Disconnected from WebSocket server'); // eslint-disable-line no-console
       setClients([]);
+      setIsDisconnected(true);
     };
 
     setWs(socket);
@@ -60,13 +71,22 @@ export const Room = () => {
     connectWebSocket(sessionId, nickname);
   }, [sessionId, nickname]);
 
-  const sendMessage = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    if (ws && message) {
-      ws.send(message);
-      setMessage('');
-    }
-  };
+  const onSubmit = React.useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (!ws) return;
+      handleSubmit(async (data) => {
+        try {
+          if (data.message === '') return;
+          ws.send(data.message);
+          reset();
+        } catch (error) {
+          console.error(error); // eslint-disable-line no-console
+        }
+      })();
+    },
+    [handleSubmit, ws, reset]
+  );
 
   const removeClient = async (index: number) => {
     if (sessionId) {
@@ -83,31 +103,8 @@ export const Room = () => {
       <h1>参加しているチーム</h1>
 
       {sessionId && (
-        <div>
-          <p>Session ID: {sessionId}</p>
-          <button type="button" onClick={onCopyButtonClick}>
-            共有リンクをコピー
-          </button>
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Type a message"
-          />
-          <button type="submit" onClick={sendMessage}>
-            Send
-          </button>
-
-          <h2>メッセージリスト</h2>
-          <ul>
-            {response.map((messageObject, index) => (
-              // eslint-disable-next-line react/no-array-index-key
-              <li key={index}>
-                {messageObject.ws.nickname} : {messageObject.message}
-              </li>
-            ))}
-          </ul>
-          <h2>Connected Clients</h2>
+        <div className={styles.Room}>
+          {isDisconnected && <p style={{ color: 'red' }}>切断されました</p>}
           <ul>
             {clients.map((client, index) => (
               <li key={client}>
@@ -118,6 +115,30 @@ export const Room = () => {
               </li>
             ))}
           </ul>
+          <p>Session ID: {sessionId}</p>
+          <button type="button" onClick={onCopyButtonClick}>
+            共有リンクをコピー
+          </button>
+
+          <h2>メッセージリスト</h2>
+          {response.map((messageObject, index) => (
+            <TalkingCard
+              message={messageObject.message}
+              nickName={messageObject.ws.nickname}
+              isMine={messageObject.isMine}
+              // eslint-disable-next-line react/no-array-index-key
+              key={index}
+            />
+          ))}
+
+          <form onSubmit={onSubmit} className={styles.Room__form}>
+            <Input
+              name="message"
+              control={control}
+              placeholder="入力しろ"
+              disabled={isDisconnected}
+            />
+          </form>
         </div>
       )}
     </div>
