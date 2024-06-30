@@ -160,6 +160,8 @@ app.delete('/session/:sessionId/clients/:clientIndex', (req: Request, res: Respo
 try {
   server.listen(appPort, () => {
     console.log(`dev server running at: http://localhost:${appPort}/`); // eslint-disable-line no-console
+    console.log(`FRONTEND_URL: ${frontendUrl}`); // eslint-disable-line no-console
+    console.log(`PORT: ${appPort}`); // eslint-disable-line no-console
     setInterval(() => {
       console.log(sessions); // eslint-disable-line no-console
     }, 4000);
