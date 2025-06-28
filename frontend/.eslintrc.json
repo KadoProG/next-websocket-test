@@ -66,13 +66,13 @@
     "react/prop-types": [0],
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-unused-vars": "error",
-    // 比較演算子の"=="を”＝＝＝”に修正する
+    // 比較演算子の"=="を"＝＝＝"に修正する
     "eqeqeq": 2,
     "no-console": "warn",
     "object-shorthand": "error",
-    "arrow-body-style": ["error"],
+    "arrow-body-style": ["error", "as-needed"],
     "no-else-return": ["error"],
-    "consistent-return": ["error"],
+    "consistent-return": ["off"],
     "no-unneeded-ternary": ["error"],
     "prefer-object-spread": ["error"],
     "class-methods-use-this": ["error"],

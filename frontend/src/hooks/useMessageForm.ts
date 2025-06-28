@@ -5,7 +5,7 @@ interface MessageFormData {
   message: string;
 }
 
-export const useMessageForm = (sendMessage: (message: string) => void, isDisconnected: boolean) => {
+export const useMessageForm = (sendMessage: (message: string) => void) => {
   const { control, handleSubmit, reset } = useForm<MessageFormData>({
     defaultValues: {
       message: '',
@@ -31,6 +31,5 @@ export const useMessageForm = (sendMessage: (message: string) => void, isDisconn
   return {
     control,
     onSubmit,
-    isDisabled: isDisconnected,
   };
 };

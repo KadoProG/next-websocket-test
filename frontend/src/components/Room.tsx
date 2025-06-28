@@ -19,12 +19,9 @@ export const Room = () => {
     }
   }, [sessionId]);
 
-  const { response, clients, isDisconnected, sendMessage } = useWebSocket(
-    sessionId || '',
-    nickname || ''
-  );
+  const { response, clients, sendMessage, status } = useWebSocket(sessionId || '', nickname || '');
   const { removeClient, onCopyButtonClick } = useRoomActions(sessionId || '');
-  const { control, onSubmit, isDisabled } = useMessageForm(sendMessage, isDisconnected);
+  const { control, onSubmit } = useMessageForm(sendMessage);
 
   return (
     <div>
@@ -32,7 +29,7 @@ export const Room = () => {
 
       {sessionId && (
         <div className={styles.Room}>
-          {isDisconnected && <p style={{ color: 'red' }}>切断されました</p>}
+          {status === 'disconnected' && <p style={{ color: 'red' }}>切断されました</p>}
           <ul>
             {clients.map((client, index) => (
               <li key={client}>
@@ -60,7 +57,12 @@ export const Room = () => {
           ))}
 
           <form onSubmit={onSubmit} className={styles.Room__form}>
-            <Input name="message" control={control} placeholder="入力しろ" disabled={isDisabled} />
+            <Input
+              name="message"
+              control={control}
+              placeholder="入力しろ"
+              disabled={status !== 'connected'}
+            />
           </form>
         </div>
       )}

@@ -15,7 +15,7 @@ export const useWebSocket = (sessionId: string, nickname: string) => {
   const [response, setResponse] = useState<MessageData[]>([]);
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [clients, setClients] = useState<string[]>([]);
-  const [isDisconnected, setIsDisconnected] = useState<boolean>(false);
+  const [status, setStatus] = useState<'pending' | 'connected' | 'disconnected'>('pending');
 
   const connectWebSocket = useCallback((selectSessionId: string, selectNickname: string) => {
     const socket = new WebSocket(
@@ -24,6 +24,7 @@ export const useWebSocket = (sessionId: string, nickname: string) => {
 
     socket.onopen = () => {
       console.log('Connected to WebSocket server'); // eslint-disable-line no-console
+      setStatus('connected');
       setWs(socket);
     };
 
@@ -41,7 +42,7 @@ export const useWebSocket = (sessionId: string, nickname: string) => {
     socket.onclose = () => {
       console.log('Disconnected from WebSocket server'); // eslint-disable-line no-console
       setClients([]);
-      setIsDisconnected(true);
+      setStatus('disconnected');
     };
 
     setWs(socket);
@@ -64,7 +65,7 @@ export const useWebSocket = (sessionId: string, nickname: string) => {
   return {
     response,
     clients,
-    isDisconnected,
     sendMessage,
+    status,
   };
 };
