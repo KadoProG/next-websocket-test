@@ -1,5 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-cd frontend && yarn check-types
-cd ../backend && yarn check-types
+cd frontend && npm run check-types
+cd ../backend && npm run check-types
