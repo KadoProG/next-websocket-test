@@ -36,7 +36,7 @@ export const Room = () => {
   const [clients, setClients] = React.useState<string[]>([]);
   const [isDisconnected, setIsDisconnected] = React.useState<boolean>(false);
 
-  const connectWebSocket = (selectSessionId: string, selectNickname: string) => {
+  const connectWebSocket = React.useCallback((selectSessionId: string, selectNickname: string) => {
     const socket = new WebSocket(
       `${process.env.NEXT_PUBLIC_BACKEND_WS_URL}/?sessionId=${selectSessionId}&nickName=${selectNickname}`
     );
@@ -64,12 +64,13 @@ export const Room = () => {
     };
 
     setWs(socket);
-  };
+  }, []);
 
   React.useEffect(() => {
     if (!sessionId || !nickname) return;
+    console.log('connectWebSocket'); // eslint-disable-line no-console
     connectWebSocket(sessionId, nickname);
-  }, [sessionId, nickname]);
+  }, [sessionId, nickname, connectWebSocket]);
 
   const onSubmit = React.useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
@@ -88,11 +89,14 @@ export const Room = () => {
     [handleSubmit, ws, reset]
   );
 
-  const removeClient = async (index: number) => {
-    if (sessionId) {
-      await axios.delete(`/session/${sessionId}/clients/${index}`);
-    }
-  };
+  const removeClient = React.useCallback(
+    async (index: number) => {
+      if (sessionId) {
+        await axios.delete(`/session/${sessionId}/clients/${index}`);
+      }
+    },
+    [sessionId]
+  );
 
   const onCopyButtonClick = React.useCallback(() => {
     copyToClipboard(`${process.env.NEXT_PUBLIC_BASE_URL}/c/?c=${sessionId}`);
